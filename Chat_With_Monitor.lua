@@ -1,4 +1,4 @@
-if username == nil then
+if username == nil or modemSide == nil or monitorSide == nil or userColor == nil then
     print("This is a one time setup.")
     print("Enter your username.")
     local username = read()
@@ -33,12 +33,13 @@ if username == nil then
     file.write("local username = '" .. username .. "'\n")
     file.write("local modemSide = '" .. modemSide .. "'\n")
     file.write("local monitorSide = '" .. monitorSide .. "'\n")
-    file.write("local userColor = " .. userColor .. "\n\n")
+    file.write("local userColor = '" .. userColor .. "'\n\n")
 
     for i = 2, #lines do
         file.writeLine(lines[i])
     end
     file.close()
+    dofile(shell.getRunningProgram())
 end
 
 rednet.open(modemSide)
@@ -77,7 +78,7 @@ local function printToAll(user, msg, color)
     for _, line in ipairs(wrappedLines) do
         local x, y = monitor.getCursorPos()
         monitor.setTextColor(color)
-        monitor.write(user)
+        monitor.write(user .. ": ")
         monitor.setTextColor(colors.white)
         monitor.write(line)
         if y < monitorHeight then
@@ -89,10 +90,9 @@ local function printToAll(user, msg, color)
     end
     for _, line in ipairs(wrappedTermLines) do
         local termx, termy = term.getCursorPos()
-        term.setCursorPos(0, termy)
         term.setTextColor(color)
-        monitor.write(user .. ": ")
-        monitor.setTextColor(colors.white)
+        term.write(user .. ": ")
+        term.setTextColor(colors.white)
         term.write(line)
         if termy < termHeight then
             term.setCursorPos(1, termy + 1)
@@ -130,7 +130,7 @@ parallel.waitForAny(
             else
                 rednet.broadcast(userName, userColor, userMessage)
                 local x, y = term.getCursorPos()
-                term.setCursorPos(0, y - 1)
+                term.setCursorPos(1, y - 1)
                 printToAll("You: " .. userMessage, userColor)
             end
         end
