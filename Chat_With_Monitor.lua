@@ -7,10 +7,10 @@ if username == nil then
     print("Where is your monitor located? (front, back, left, right, top)")
     local monitorSide = read()
     print("What color would you like to have? (blue, white, yellow)")
-    local userColor = read()
-    while colors.userColor == nil do
+    local userColor = "colors." .. read()
+    while userColor == nil do
         print("Color doesn't exist")
-        userColor = read()
+        userColor = "colors." .. read()
     
     local programName = shell.getRunningProgram()
     local file = fs.open(programName, "r")
@@ -33,6 +33,7 @@ if username == nil then
     file.write("local username = '" .. username .. "'")
     file.write("local modemSide = '" .. modemSide .. "'")
     file.write("local monitorSide = '" .. monitorSide .. "'")
+    file.write("local userColor = " .. userColor)
 
     -- Write the rest of the lines back to the file
     for i = 2, #lines do  -- Start from the second line
@@ -68,7 +69,7 @@ local function wrapText(text, width)
     return wrapped
 end
    
-local function printToAll(msg)
+local function printToAll(msg, color)
     local monitorWidth, monitorHeight = monitor.getSize()
     local termWidth, termHeight = term.getSize()
     local wrappedLines = wrapText(msg, monitorWidth)
@@ -102,8 +103,12 @@ print("Type 'clear' to clear the screen.\n")
     
 local function recieveMessages()
     while true do
-        local senderId, senderName, msg = rednet.receive()
+        local senderId, senderName, userColor, msg = rednet.receive()
+        term.setTextColor(userColor)
+        monitor.setTextColor(userColor)
         PrintToAll(senderName .. ": " .. msg)
+        term.setTextColor(colors.white)
+        monitor.setTextColor(colors.white)
     end
 end
 
@@ -120,7 +125,7 @@ parallel.waitForAny(
                 term.clear()
                 term.setCursorPos(1,1)
             else
-                rednet.broadcast(userName, userMessage)
+                rednet.broadcast(userName, userColor, userMessage)
                 local x, y = term.getCursorPos()
                 term.setCursorPos(0, y - 1)
                 printToAll("You: " .. userMessage)
