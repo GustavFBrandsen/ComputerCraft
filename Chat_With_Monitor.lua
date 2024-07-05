@@ -6,6 +6,12 @@ if username == nil then
     local modemSide = read()
     print("Where is your monitor located? (front, back, left, right, top)")
     local monitorSide = read()
+    print("What color would you like to have? (blue, white, yellow)")
+    local userColor = read()
+    while colors.userColor == nil do
+        print("Color doesn't exist")
+        userColor = read()
+    
     local programName = shell.getRunningProgram()
     local file = fs.open(programName, "r")
     local lines = {}
@@ -24,9 +30,9 @@ if username == nil then
     file = fs.open(programName, "w")
     
     -- Write the new first line
-    file.write("local username = " .. username)
-    file.write("local modemSide = " .. modemSide)
-    file.write("local monitorSide = " .. monitorSide)
+    file.write("local username = '" .. username .. "'")
+    file.write("local modemSide = '" .. modemSide .. "'")
+    file.write("local monitorSide = '" .. monitorSide .. "'")
 
     -- Write the rest of the lines back to the file
     for i = 2, #lines do  -- Start from the second line
@@ -66,11 +72,9 @@ local function printToAll(msg)
     local monitorWidth, monitorHeight = monitor.getSize()
     local termWidth, termHeight = term.getSize()
     local wrappedLines = wrapText(msg, monitorWidth)
+    local wrappedTermLines = wrapText(msg, termWidth)
     for _, line in ipairs(wrappedLines) do
         local x, y = monitor.getCursorPos()
-        local termx, termy = term.getCursorPos()
-        term.setCursorPos(0, termy)
-        term.write(line)
         monitor.write(line)
         if y < monitorHeight then
             monitor.setCursorPos(1, y + 1)
@@ -78,8 +82,12 @@ local function printToAll(msg)
             monitor.scroll(1)
             monitor.setCursorPos(1, monitorHeight)
         end
-        if y < termHeight then
-            term.setCursorPos(1, y + 1)
+    for _, line in ipairs(wrappedTermLines) do
+        local termx, termy = term.getCursorPos()
+        term.setCursorPos(0, termy)
+        term.write(line)
+        if termy < termHeight then
+            term.setCursorPos(1, termy + 1)
         else
             term.scroll(1)
             term.setCursorPos(1, termHeight)
@@ -87,9 +95,9 @@ local function printToAll(msg)
     end
 end
 
-print("Type your message and press Enter to send.")
-print("Type 'exit' to quit.")
-print("Type 'clear' to clear the screen.")
+print("Type your message and press Enter to send.\n")
+print("Type 'exit' to quit.\n")
+print("Type 'clear' to clear the screen.\n")
 
     
 local function recieveMessages()
