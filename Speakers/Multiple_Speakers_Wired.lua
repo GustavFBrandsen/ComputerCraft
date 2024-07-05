@@ -21,6 +21,9 @@ function playDFPWMMusic(filePath)
     -- Create a decoder
     local decoder = dfpwm.make_decoder()
 
+    -- Buffer to store decoded audio
+    local buffer = {}
+
     -- Read and decode the file in chunks
     while true do
         local chunk = file.read(16384)
@@ -29,15 +32,26 @@ function playDFPWMMusic(filePath)
         -- Decode the chunk
         local decoded = decoder(chunk)
 
-        -- Play the decoded sound on all speakers
-        for _, speaker in ipairs(speakers) do
-            speaker.playAudio(decoded)
-        end
+        -- Add the decoded audio to the buffer
+        table.insert(buffer, decoded)
+
+        -- Yield to avoid "too long without yielding" error
+        os.queueEvent("yield")
+        os.pullEvent("yield")
     end
 
     -- Close the file
     file.close()
-    
+
+    -- Play the decoded audio buffer
+    for _, audioChunk in ipairs(buffer) do
+        for _, speaker in ipairs(speakers) do
+            speaker.playAudio(audioChunk)
+        end
+        -- Add a short sleep to allow for smooth playback
+        sleep(0.05)
+    end
+
     print("Music playback finished.")
 end
 
