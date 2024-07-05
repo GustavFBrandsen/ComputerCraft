@@ -23,33 +23,59 @@ function playDFPWMMusic(filePath)
 
     -- Buffer to store decoded audio
     local buffer = {}
+    local chunkSize = 16384
+    local maxBufferLength = 100  -- Adjust based on available memory and performance
 
     -- Read and decode the file in chunks
     while true do
-        local chunk = file.read(16384)
+        local chunk = file.read(chunkSize)
         if not chunk then break end
 
         -- Decode the chunk
         local decoded = decoder(chunk)
-
-        -- Add the decoded audio to the buffer
         table.insert(buffer, decoded)
 
         -- Yield to avoid "too long without yielding" error
         os.queueEvent("yield")
         os.pullEvent("yield")
+
+        -- Limit buffer length
+        if #buffer >= maxBufferLength then
+            break
+        end
     end
 
     -- Close the file
     file.close()
 
     -- Play the decoded audio buffer
+    local playSpeed = 0.05  -- Adjust based on audio chunk size and required playback speed
     for _, audioChunk in ipairs(buffer) do
         for _, speaker in ipairs(speakers) do
             speaker.playAudio(audioChunk)
         end
-        -- Add a short sleep to allow for smooth playback
-        sleep(0.05)
+        -- Sleep to maintain proper playback timing
+        sleep(playSpeed)
+    end
+
+    -- Continue reading and playing the rest of the file
+    while true do
+        local chunk = file.read(chunkSize)
+        if not chunk then break end
+
+        -- Decode the chunk
+        local decoded = decoder(chunk)
+
+        -- Play the decoded audio
+        for _, speaker in ipairs(speakers) do
+            speaker.playAudio(decoded)
+        end
+        -- Sleep to maintain proper playback timing
+        sleep(playSpeed)
+
+        -- Yield to avoid "too long without yielding" error
+        os.queueEvent("yield")
+        os.pullEvent("yield")
     end
 
     print("Music playback finished.")
