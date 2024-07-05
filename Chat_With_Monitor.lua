@@ -11,6 +11,7 @@ if username == nil then
     while userColor == nil do
         print("Color doesn't exist")
         userColor = "colors." .. read()
+    end
     
     local programName = shell.getRunningProgram()
     local file = fs.open(programName, "r")
@@ -20,7 +21,7 @@ if username == nil then
 
     while line do
         lineCount = lineCount + 1
-        if lineCount > 36 then
+        if lineCount > 42 then
             table.insert(lines, line)
         end
         line = file.readLine()
@@ -29,14 +30,12 @@ if username == nil then
 
     file = fs.open(programName, "w")
     
-    -- Write the new first line
-    file.write("local username = '" .. username .. "'")
-    file.write("local modemSide = '" .. modemSide .. "'")
-    file.write("local monitorSide = '" .. monitorSide .. "'")
-    file.write("local userColor = " .. userColor)
+    file.write("local username = '" .. username .. "'\n")
+    file.write("local modemSide = '" .. modemSide .. "'\n")
+    file.write("local monitorSide = '" .. monitorSide .. "'\n")
+    file.write("local userColor = " .. userColor .. "\n")
 
-    -- Write the rest of the lines back to the file
-    for i = 2, #lines do  -- Start from the second line
+    for i = 2, #lines do
         file.writeLine(lines[i])
     end
     file.close()
@@ -62,7 +61,7 @@ local function wrapText(text, width)
             table.insert(wrapped, line)
             line = word
         else
-        line = testLine
+            line = testLine
         end
     end
     table.insert(wrapped, line)
@@ -70,6 +69,8 @@ local function wrapText(text, width)
 end
    
 local function printToAll(msg, color)
+    term.setTextColor(color)
+    monitor.setTextColor(color)
     local monitorWidth, monitorHeight = monitor.getSize()
     local termWidth, termHeight = term.getSize()
     local wrappedLines = wrapText(msg, monitorWidth)
@@ -83,6 +84,7 @@ local function printToAll(msg, color)
             monitor.scroll(1)
             monitor.setCursorPos(1, monitorHeight)
         end
+    end
     for _, line in ipairs(wrappedTermLines) do
         local termx, termy = term.getCursorPos()
         term.setCursorPos(0, termy)
@@ -94,6 +96,8 @@ local function printToAll(msg, color)
             term.setCursorPos(1, termHeight)
         end
     end
+    term.setTextColor(colors.white)
+    monitor.setTextColor(colors.white)
 end
 
 print("Type your message and press Enter to send.\n")
@@ -103,12 +107,8 @@ print("Type 'clear' to clear the screen.\n")
     
 local function recieveMessages()
     while true do
-        local senderId, senderName, userColor, msg = rednet.receive()
-        term.setTextColor(userColor)
-        monitor.setTextColor(userColor)
-        PrintToAll(senderName .. ": " .. msg)
-        term.setTextColor(colors.white)
-        monitor.setTextColor(colors.white)
+        local senderId, senderName, senderColor, msg = rednet.receive()
+        PrintToAll(senderName .. ": " .. msg, senderColor)
     end
 end
 
@@ -128,7 +128,7 @@ parallel.waitForAny(
                 rednet.broadcast(userName, userColor, userMessage)
                 local x, y = term.getCursorPos()
                 term.setCursorPos(0, y - 1)
-                printToAll("You: " .. userMessage)
+                printToAll("You: " .. userMessage, userColor)
             end
         end
     end
