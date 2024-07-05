@@ -21,7 +21,7 @@ if username == nil or modemSide == nil or monitorSide == nil or userColor == nil
 
     while line do
         lineCount = lineCount + 1
-        if lineCount > 42 then
+        if lineCount > 45 then
             table.insert(lines, line)
         end
         line = file.readLine()
@@ -113,7 +113,7 @@ print("Type 'clear' to clear the screen.")
 local function recieveMessages()
     while true do
         local senderId, senderName, senderColor, msg = rednet.receive()
-        PrintToAll(senderName, msg, senderColor)
+        printToAll(senderName, msg, senderColor)
     end
 end
 
