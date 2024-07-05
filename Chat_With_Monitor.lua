@@ -1,6 +1,7 @@
 
 local modemSide = "back"
 local monitorSide = "left"
+local userName = "New User"
 
 rednet.open (modemSide)
 
@@ -79,7 +80,7 @@ parallel.waitForAny(
                 term.clear()
                 term.setCursorPos(1,1)
             else
-                rednet.broadcast("Gustav", userMessage)
+                rednet.broadcast(userName, userMessage)
                 local x, y = term.getCursorPos()
                 term.setCursorPos(0, y - 1)
                 printToAll("You: " .. userMessage)
