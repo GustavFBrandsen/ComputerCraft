@@ -39,6 +39,8 @@ if username == nil or modemSide == nil or monitorSide == nil or userColor == nil
         file.writeLine(lines[i])
     end
     file.close()
+    monitor.clear()
+    term.clear()
     dofile(shell.getRunningProgram())
 end
 
@@ -111,7 +113,7 @@ print("Type 'clear' to clear the screen.")
 local function recieveMessages()
     while true do
         local senderId, senderName, senderColor, msg = rednet.receive()
-        PrintToAll(senderName .. ": " .. msg, senderColor)
+        PrintToAll(senderName, msg, senderColor)
     end
 end
 
@@ -131,7 +133,7 @@ parallel.waitForAny(
                 rednet.broadcast(userName, userColor, userMessage)
                 local x, y = term.getCursorPos()
                 term.setCursorPos(1, y - 1)
-                printToAll("You: " .. userMessage, userColor)
+                printToAll("You", userMessage, userColor)
             end
         end
     end
