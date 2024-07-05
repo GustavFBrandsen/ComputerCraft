@@ -14,7 +14,10 @@ function play_music(sound)
     for chunk in io.lines(sound, 16 * 1024) do
         local buffer = decoder(chunk)
         play_audio(speakers, buffer, 3.0)
-        os.pullEvent("speaker_audio_empty")
+        -- Wait for all speakers to finish playing the buffer
+        for i = 1, #speakers do
+            os.pullEvent("speaker_audio_empty")
+        end
     end
 end
 
