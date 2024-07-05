@@ -21,7 +21,7 @@ if username == nil or modemSide == nil or monitorSide == nil or userColor == nil
 
     while line do
         lineCount = lineCount + 1
-        if lineCount > 45 then
+        if lineCount > 42 then
             table.insert(lines, line)
         end
         line = file.readLine()
@@ -38,9 +38,6 @@ if username == nil or modemSide == nil or monitorSide == nil or userColor == nil
     for i = 2, #lines do
         file.writeLine(lines[i])
     end
-    file.close()
-    monitor.clear()
-    term.clear()
     dofile(shell.getRunningProgram())
 end
 
@@ -52,6 +49,7 @@ monitor.clear()
 monitor.setCursorPos(1,1)
 monitor.setTextScale(1)
 monitor.setTextColor(colors.white)
+term.clear()
 term.setCursorPos(1,1)
 term.setTextColor(colors.white)
 
@@ -112,8 +110,11 @@ print("Type 'clear' to clear the screen.")
     
 local function recieveMessages()
     while true do
-        senderId, senderName, senderColor, msg = rednet.receive()
-        printToAll(senderName, senderColor, msg)
+        local senderId, packet = rednet.receive()
+        senderName = packet[1]
+        senderColor = packet[2]
+        senderMsg = packet[3]
+        printToAll(senderName, senderColor, senderMsg)
     end
 end
 
@@ -130,7 +131,7 @@ parallel.waitForAny(
                 term.clear()
                 term.setCursorPos(1,1)
             else
-                rednet.broadcast(username, userColor, userMessage)
+                rednet.broadcast((username, userMessage, userColor))
                 local x, y = term.getCursorPos()
                 term.setCursorPos(1, y - 1)
                 printToAll("You", userColor, userMessage)
