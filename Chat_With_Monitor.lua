@@ -70,7 +70,7 @@ local function wrapText(text, width)
 end
    
 local function printToAll(user, color, msg)
-    color = loadstring("return " .. "colors." .. color)()
+    color = loadstring("return colors." .. color)()
     local monitorWidth, monitorHeight = monitor.getSize()
     local termWidth, termHeight = term.getSize()
     local wrappedLines = wrapText(msg, monitorWidth)
@@ -131,7 +131,7 @@ parallel.waitForAny(
                 term.clear()
                 term.setCursorPos(1,1)
             else
-                rednet.broadcast((username, userMessage, userColor))
+                rednet.broadcast({username, userColor, userMessage})
                 local x, y = term.getCursorPos()
                 term.setCursorPos(1, y - 1)
                 printToAll("You", userColor, userMessage)
