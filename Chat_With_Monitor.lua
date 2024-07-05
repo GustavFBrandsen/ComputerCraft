@@ -71,7 +71,7 @@ local function wrapText(text, width)
     return wrapped
 end
    
-local function printToAll(user, msg, color)
+local function printToAll(user, color, msg)
     color = loadstring("return " .. "colors." .. color)()
     local monitorWidth, monitorHeight = monitor.getSize()
     local termWidth, termHeight = term.getSize()
@@ -112,8 +112,8 @@ print("Type 'clear' to clear the screen.")
     
 local function recieveMessages()
     while true do
-        local senderId, senderName, senderColor, msg = rednet.receive()
-        printToAll(senderName, msg, senderColor)
+        senderId, senderName, senderColor, msg = rednet.receive()
+        printToAll(senderName, senderColor, msg)
     end
 end
 
@@ -130,10 +130,10 @@ parallel.waitForAny(
                 term.clear()
                 term.setCursorPos(1,1)
             else
-                rednet.broadcast(userName, userColor, userMessage)
+                rednet.broadcast(username, userColor, userMessage)
                 local x, y = term.getCursorPos()
                 term.setCursorPos(1, y - 1)
-                printToAll("You", userMessage, userColor)
+                printToAll("You", userColor, userMessage)
             end
         end
     end
