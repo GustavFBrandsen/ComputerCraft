@@ -1,7 +1,33 @@
 
 local modemSide = "back"
 local monitorSide = "left"
-local userName = "New User"
+
+
+-- Get the current script name
+local scriptFile = shell.getRunningProgram()
+
+-- Function to get the username from the script
+local function getUsername()
+    local file = fs.open(scriptFile, "r")
+    if file then
+        local content = file.readAll()
+        file.close()
+        local username = content:match("local username = \"(.-)\"")
+        if username then
+            return username
+        else
+            print("Please enter your username:")
+            local username = read()
+            -- Append the username to the script file
+            file = fs.open(scriptFile, "a")
+            file.write("\nlocal username = \"" .. username .. "\"\n")
+            file.close()
+            return username
+        end
+    end
+end
+
+local username = getUsername()
 
 rednet.open (modemSide)
 
