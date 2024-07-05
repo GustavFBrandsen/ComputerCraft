@@ -7,10 +7,10 @@ if username == nil then
     print("Where is your monitor located? (front, back, left, right, top)")
     local monitorSide = read()
     print("What color would you like to have? (blue, white, yellow)")
-    local userColor = "colors." .. read()
-    while userColor == nil do
+    local userColor = read()
+    while loadstring("return " .. "colors." .. userColor)() == nil do
         print("Color doesn't exist")
-        userColor = "colors." .. read()
+        userColor = read()
     end
     
     local programName = shell.getRunningProgram()
@@ -33,7 +33,7 @@ if username == nil then
     file.write("local username = '" .. username .. "'\n")
     file.write("local modemSide = '" .. modemSide .. "'\n")
     file.write("local monitorSide = '" .. monitorSide .. "'\n")
-    file.write("local userColor = " .. userColor .. "\n")
+    file.write("local userColor = " .. userColor .. "\n\n")
 
     for i = 2, #lines do
         file.writeLine(lines[i])
@@ -68,15 +68,17 @@ local function wrapText(text, width)
     return wrapped
 end
    
-local function printToAll(msg, color)
-    term.setTextColor(color)
-    monitor.setTextColor(color)
+local function printToAll(user, msg, color)
+    color = loadstring("return " .. "colors." .. color)()
     local monitorWidth, monitorHeight = monitor.getSize()
     local termWidth, termHeight = term.getSize()
     local wrappedLines = wrapText(msg, monitorWidth)
     local wrappedTermLines = wrapText(msg, termWidth)
     for _, line in ipairs(wrappedLines) do
         local x, y = monitor.getCursorPos()
+        monitor.setTextColor(color)
+        monitor.write(user)
+        monitor.setTextColor(colors.white)
         monitor.write(line)
         if y < monitorHeight then
             monitor.setCursorPos(1, y + 1)
@@ -88,6 +90,9 @@ local function printToAll(msg, color)
     for _, line in ipairs(wrappedTermLines) do
         local termx, termy = term.getCursorPos()
         term.setCursorPos(0, termy)
+        term.setTextColor(color)
+        monitor.write(user .. ": ")
+        monitor.setTextColor(colors.white)
         term.write(line)
         if termy < termHeight then
             term.setCursorPos(1, termy + 1)
@@ -96,13 +101,11 @@ local function printToAll(msg, color)
             term.setCursorPos(1, termHeight)
         end
     end
-    term.setTextColor(colors.white)
-    monitor.setTextColor(colors.white)
 end
 
-print("Type your message and press Enter to send.\n")
-print("Type 'exit' to quit.\n")
-print("Type 'clear' to clear the screen.\n")
+print("Type your message and press Enter to send.")
+print("Type 'exit' to quit.")
+print("Type 'clear' to clear the screen.")
 
     
 local function recieveMessages()
