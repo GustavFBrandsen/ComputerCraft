@@ -2,13 +2,13 @@ if username == nil or modemSide == nil or monitorSide == nil or userColor == nil
     print("This is a one time setup.")
     print("Enter your username.")
     local username = read()
-    print("Where is your wireless modem located? (front, back, left, right, top)")
+    print("Where is your wireless modem located? \n(front, back, left, right, top)")
     local modemSide = read()
-    print("Where is your monitor located? (front, back, left, right, top)")
+    print("Where is your monitor located? \n(front, back, left, right, top)")
     local monitorSide = read()
-    print("What color would you like to have? (blue, white, yellow)")
+    print("What color would you like to have? \n(blue, white, yellow)")
     local userColor = read()
-    while loadstring("return " .. "colors." .. userColor)() == nil do
+    while loadstring("return colors." .. userColor)() == nil do
         print("Color doesn't exist")
         userColor = read()
     end
