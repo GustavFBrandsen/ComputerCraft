@@ -32,6 +32,7 @@ if username == nil then
         file.writeLine(lines[i])
     end
     file.close()
+end
 
 rednet.open(modemSide)
 
