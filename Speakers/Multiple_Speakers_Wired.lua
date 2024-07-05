@@ -1,45 +1,45 @@
-function play_audio(speakers, buffer, vol)
-    for i = 1, #speakers do
-        speakers[i].playAudio(buffer, vol)
-    end
-end
+-- Load the DFPWM decoder library
+local dfpwm = require("cc.audio.dfpwm")
 
-function play_music(sound)
+-- Function to play DFPWM music on all connected speakers
+function playDFPWMMusic(filePath)
+    -- Open the DFPWM file
+    local file = fs.open(filePath, "rb")
+    if not file then
+        print("File not found: " .. filePath)
+        return
+    end
+
+    -- Find all connected speakers
     local speakers = {peripheral.find("speaker")}
-    local dfpwm = require("cc.audio.dfpwm")
+    if #speakers == 0 then
+        print("No speakers connected.")
+        file.close()
+        return
+    end
+
+    -- Create a decoder
     local decoder = dfpwm.make_decoder()
 
-    print("Num of speakers: ", #speakers)
+    -- Read and decode the file in chunks
+    while true do
+        local chunk = file.read(16384)
+        if not chunk then break end
 
-    for chunk in io.lines(sound, 16 * 1024) do
-        local buffer = decoder(chunk)
-        play_audio(speakers, buffer, 3.0)
-        -- Wait for all speakers to finish playing the buffer
-        for i = 1, #speakers do
-            os.pullEvent("speaker_audio_empty")
+        -- Decode the chunk
+        local decoded = decoder(chunk)
+
+        -- Play the decoded sound on all speakers
+        for _, speaker in ipairs(speakers) do
+            speaker.playAudio(decoded)
         end
     end
+
+    -- Close the file
+    file.close()
+    
+    print("Music playback finished.")
 end
 
-function commands(command)
-    if command == "play" then
-        print("Enter music file name: ")
-        filename = read()
-        play_music("/music/" .. filename .. ".dfpwm")
-    elseif command == "stop" then
-        stop_music()
-    elseif command == "exit" then
-        return "exit"
-    else
-        print("Unknown command: " .. command)
-    end
-end
-
-while true do
-    print("Enter a command (play, stop, exit)")
-    command = read()
-    local c = commands(command)
-    if c == "exit" then
-        break
-    end
-end
+-- Example usage
+playDFPWMMusic("/music/kbh.dfpwm")
