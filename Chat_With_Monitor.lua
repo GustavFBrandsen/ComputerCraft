@@ -6,7 +6,8 @@ if username == nil then
     local modemSide = read()
     print("Where is your monitor located? (front, back, left, right, top)")
     local monitorSide = read()
-    local file = fs.open(shell.getRunningProgram(), "r")
+    local programName = shell.getRunningProgram()
+    local file = fs.open(programName, "r")
     local lines = {}
     local lineCount = 0
     local line = file.readLine()
@@ -20,12 +21,12 @@ if username == nil then
     end
     file.close()
 
-    file = fs.open(fileName, "w")
+    file = fs.open(programName, "w")
     
     -- Write the new first line
-    file.writeLine(file.write("local username = \"" .. username .. "\"\n"))
-    file.writeLine(file.write("local modemSide = \"" .. modemSide .. "\"\n"))
-    file.writeLine(file.write("local monitorSide = \"" .. monitorSide .. "\"\n"))
+    file.writeLine(file.write("local username = " .. username))
+    file.writeLine(file.write("local modemSide = " .. modemSide))
+    file.writeLine(file.write("local monitorSide = " .. monitorSide))
 
     -- Write the rest of the lines back to the file
     for i = 2, #lines do  -- Start from the second line
