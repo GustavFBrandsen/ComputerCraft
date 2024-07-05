@@ -1,35 +1,39 @@
+if username == nil then
+    print("This is a one time setup.")
+    print("Enter your username.")
+    local username = read()
+    print("Where is your wireless modem located? (front, back, left, right, top)")
+    local modemSide = read()
+    print("Where is your monitor located? (front, back, left, right, top)")
+    local monitorSide = read()
+    local file = fs.open(shell.getRunningProgram(), "r")
+    local lines = {}
+    local lineCount = 0
+    local line = file.readLine()
 
-local modemSide = "back"
-local monitorSide = "left"
-
-
--- Get the current script name
-local scriptFile = shell.getRunningProgram()
-
--- Function to get the username from the script
-local function getUsername()
-    local file = fs.open(scriptFile, "r")
-    if file then
-        local content = file.readAll()
-        file.close()
-        local username = content:match("local username = \"(.-)\"")
-        if username then
-            return username
-        else
-            print("Please enter your username:")
-            local username = read()
-            -- Append the username to the script file
-            file = fs.open(scriptFile, "a")
-            file.write("\nlocal username = \"" .. username .. "\"\n")
-            file.close()
-            return username
+    while line do
+        lineCount = lineCount + 1
+        if lineCount > 34 then
+            table.insert(lines, line)
         end
+        line = file.readLine()
     end
-end
+    file.close()
 
-local username = getUsername()
+    file = fs.open(fileName, "w")
+    
+    -- Write the new first line
+    file.writeLine(file.write("local username = \"" .. username .. "\"\n"))
+    file.writeLine(file.write("local modemSide = \"" .. modemSide .. "\"\n"))
+    file.writeLine(file.write("local monitorSide = \"" .. monitorSide .. "\"\n"))
 
-rednet.open (modemSide)
+    -- Write the rest of the lines back to the file
+    for i = 2, #lines do  -- Start from the second line
+        file.writeLine(lines[i])
+    end
+    file.close()
+
+rednet.open(modemSide)
 
 local monitor = peripheral.wrap(monitorSide)
 
