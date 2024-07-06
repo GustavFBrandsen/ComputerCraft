@@ -80,7 +80,7 @@ local function handleUserInput()
         local diskSide = findDiskDriveSide()
         local folder = ""
         local command, fileName = "", ""
-        if drive and disk.isPresent(diskSide) and _G.musicPlaying == false then
+        if disk.isPresent(diskSide) and _G.musicPlaying == false then
             local songName = drive.getDiskLabel()
             folder = "/disk/"
             command, fileName = "play", songName
@@ -93,6 +93,9 @@ local function handleUserInput()
         if command == "stop" then
             _G.stopMusic = true
             if disk.isPresent(diskSide) then
+                while _G.musicPlaying do
+                    sleep(0.1)
+                end
                 disk.eject(diskSide)
             end
         elseif command == "exit" then
@@ -111,7 +114,7 @@ local function handleUserInput()
                 handleUserInput
             )
         else
-            print("Invalid command. Use 'play <file>' or 'stop'.")
+            print("Invalid command. Use 'play <file>' or 'stop' or 'exit'.")
         end
     end
 end
@@ -119,7 +122,7 @@ end
 -- Function to check if a disk is inserted on a specified side
 local function checkDiskPresence(side)
     while true do
-        if disk.isPresent(side) and _G.musicPlaying = false then
+        if disk.isPresent(side) and _G.musicPlaying == false then
             handleUserInput()
         else
             sleep(3)  -- Check every 3 seconds
