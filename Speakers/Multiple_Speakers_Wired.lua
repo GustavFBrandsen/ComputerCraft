@@ -1,8 +1,7 @@
 -- Load the DFPWM decoder library
 local dfpwm = require("cc.audio.dfpwm")
-
 -- Find all connected speakers
-local speakers = peripheral.find("speaker") and {peripheral.find("speaker")} or {}
+local speakers = table.pack(peripheral.find("speaker"))
 
 -- Global flags to control music playback
 _G.stopMusic = false
@@ -35,7 +34,7 @@ local function playDFPWMMusic(filePath)
                 end
             end
         end
-        parallel.waitForAll(table.unpack(funcs))
+        parallel.waitForAll(table.unpack(funcs, 1, speakers.n))
     end
 
     -- Read and decode the file in chunks
@@ -52,7 +51,7 @@ local function playDFPWMMusic(filePath)
 
         -- Check if we need to stop
         if _G.stopMusic then
-            for i = 1, #speakers do
+            for i = 1, speakers.n do
                 speakers[i].stop()
             end
             break
@@ -64,7 +63,6 @@ local function playDFPWMMusic(filePath)
     _G.musicPlaying = false
 end
 
--- Function to find the side of the disk drive
 local function findDiskDriveSide()
     local sides = {"left", "right", "top", "bottom", "front", "back"}
     for _, side in ipairs(sides) do
@@ -75,57 +73,56 @@ local function findDiskDriveSide()
     return nil
 end
 
--- Function to check if a disk is inserted on a specified side
-local function checkDiskPresence(side)
-    while true do
-        if findDiskDriveSide() then
-            _G.diskPresent = disk.isPresent(side)
-            sleep(3)  -- Check every 3 seconds
-        else
-            break
-        end
-    end
-end
-
 -- Function to handle user input
 local function handleUserInput()
     while true do
+        local drive = peripheral.find("drive")
         local diskSide = findDiskDriveSide()
-        local drive = peripheral.wrap(diskSide)
-        local diskPresent = (drive and disk.isPresent(diskSide))
-
+        local folder = ""
         local command, fileName = "", ""
-        if diskPresent and _G.musicPlaying == false then
+        if drive and disk.isPresent(diskSide) and _G.musicPlaying == false then
             local songName = drive.getDiskLabel()
-            local folder = "/disk/"
-            local filePath = folder .. songName .. ".dfpwm"
+            folder = "/disk/"
+            command, fileName = "play", songName
+        else
+            print("Enter command (play <file> / stop / exit):")
+            local input = read()
+            folder = "/music/"
+            command, fileName = input:match("^(%S+)%s*(%S*)$")
+        end
+        if command == "stop" then
+            _G.stopMusic = true
+            if disk.isPresent(diskSide) then
+                disk.eject(diskSide)
+            end
+        elseif command == "exit" then
+            _G.stopMusic = true
+            break
+        elseif command == "play" and fileName ~= "" then
             _G.stopMusic = true
             while _G.musicPlaying do
                 sleep(0.1)
             end
             _G.stopMusic = false
             _G.musicPlaying = true
+            local filePath = folder .. fileName .. ".dfpwm"
             parallel.waitForAny(
                 function() playDFPWMMusic(filePath) end,
                 handleUserInput
             )
         else
-            print("Enter command (stop / exit):")
-            local input = read()
-            command = input:match("^(%S+)")
+            print("Invalid command. Use 'play <file>' or 'stop'.")
         end
+    end
+end
 
-        if command == "stop" then
-            _G.stopMusic = true
-            if diskPresent then
-                local drive = peripheral.wrap(diskSide)
-                drive.eject()
-            end
-        elseif command == "exit" then
-            _G.stopMusic = true
-            break
+-- Function to check if a disk is inserted on a specified side
+local function checkDiskPresence(side)
+    while true do
+        if disk.isPresent(side) and _G.musicPlaying = false then
+            handleUserInput()
         else
-            print("Invalid command. Use 'stop' or 'exit'.")
+            sleep(3)  -- Check every 3 seconds
         end
     end
 end
