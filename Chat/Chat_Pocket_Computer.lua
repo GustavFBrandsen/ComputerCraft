@@ -19,7 +19,7 @@ if username == nil or modemSide == nil or userColor == nil then
 
     while line do
         lineCount = lineCount + 1
-        if lineCount > 40 then
+        if lineCount > 39 then
             table.insert(lines, line)
         end
         line = file.readLine()
