@@ -63,6 +63,16 @@ local function playDFPWMMusic(filePath)
     _G.musicPlaying = false
 end
 
+local function findDiskDriveSide()
+    local sides = {"left", "right", "top", "bottom", "front", "back"}
+    for _, side in ipairs(sides) do
+        if peripheral.getType(side) == "drive" then
+            return side
+        end
+    end
+    return nil
+end
+
 -- Function to handle user input
 local function handleUserInput()
     while true do
@@ -81,7 +91,9 @@ local function handleUserInput()
         end
         if command == "stop" then
             _G.stopMusic = true
-            drive.ejectDrive()
+            local diskSide = findDiskDriveSide()
+            if disk.isPresent(diskSide) then
+                disk.eject(diskSide)
         elseif command == "exit" then
             _G.stopMusic = true
             break
