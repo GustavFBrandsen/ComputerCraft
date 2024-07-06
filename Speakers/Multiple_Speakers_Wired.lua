@@ -1,5 +1,7 @@
 -- Load the DFPWM decoder library
 local dfpwm = require("cc.audio.dfpwm")
+-- Find all connected speakers
+local speakers = table.pack(peripheral.find("speaker"))
 
 -- Global flags to control music playback
 _G.stopMusic = false
@@ -7,8 +9,6 @@ _G.musicPlaying = false
 
 -- Function to play a DFPWM file on all connected speakers
 local function playDFPWMMusic(filePath)
-    -- Find all connected speakers
-    local speakers = table.pack(peripheral.find("speaker"))
     if #speakers == 0 then
         print("No speakers connected.")
         return
