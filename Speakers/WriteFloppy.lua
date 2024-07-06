@@ -1,5 +1,9 @@
 -- Function to copy a file from source to destination
-local function copyFile(srcPath, destPath)
+local function copyFile(fileName)
+    -- Construct the full paths
+    local srcPath = "/" .. fileName .. ".dfpwm"
+    local destPath = "/disk/" .. fileName .. ".dfpwm"
+
     -- Open the source file for reading
     local srcFile = fs.open(srcPath, "rb")
     if not srcFile then
@@ -31,7 +35,12 @@ local function copyFile(srcPath, destPath)
     return true
 end
 
--- Example usage
-local srcPath = "/path/to/source/file"
-local destPath = "/path/to/destination/file"
-copyFile(srcPath, destPath)
+-- Function to handle user input for the file name
+local function handleUserInput()
+    print("Enter the name of the file to copy (without .dfpwm extension):")
+    local fileName = read()
+    copyFile(fileName)
+end
+
+-- Run the user input function
+handleUserInput()
