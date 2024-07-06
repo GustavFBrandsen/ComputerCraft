@@ -66,12 +66,22 @@ end
 -- Function to handle user input
 local function handleUserInput()
     while true do
-        print("Enter command (play <file> / stop / exit):")
-        local input = read()
-        local command, fileName = input:match("^(%S+)%s*(%S*)$")
+        local drive = peripheral.find("drive")
+        local folder = ""
+        local command, fileName = "", ""
+        if drive and _G.stopMusic == true and _G.musicPlaying == false then
+            local songName = drive.getDiskLabel()
+            folder = "/disk/"
+            command, fileName = "play", songName
+        else
+            print("Enter command (play <file> / stop / exit):")
+            local input = read()
+            folder = "/music/"
+            command, fileName = input:match("^(%S+)%s*(%S*)$")
         
         if command == "stop" then
             _G.stopMusic = true
+            drive.ejectDrive()
         elseif command = "exit" then
             _G.stopMusic = true
             break
@@ -82,7 +92,7 @@ local function handleUserInput()
             end
             _G.stopMusic = false
             _G.musicPlaying = true
-            local filePath = "/music/" .. fileName .. ".dfpwm"
+            local filePath = folder .. fileName .. ".dfpwm"
             parallel.waitForAny(
                 function() playDFPWMMusic(filePath) end,
                 handleUserInput
