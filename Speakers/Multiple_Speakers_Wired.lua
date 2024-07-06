@@ -66,12 +66,15 @@ end
 -- Function to handle user input
 local function handleUserInput()
     while true do
-        print("Enter command (play <file> / stop):")
+        print("Enter command (play <file> / stop / exit):")
         local input = read()
         local command, fileName = input:match("^(%S+)%s*(%S*)$")
         
         if command == "stop" then
             _G.stopMusic = true
+        elseif command = "exit" then
+            _G.stopMusic = true
+            break
         elseif command == "play" and fileName ~= "" then
             _G.stopMusic = true
             while _G.musicPlaying do
