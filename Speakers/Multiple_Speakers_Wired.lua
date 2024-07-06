@@ -77,9 +77,10 @@ end
 local function handleUserInput()
     while true do
         local drive = peripheral.find("drive")
+        local diskSide = findDiskDriveSide()
         local folder = ""
         local command, fileName = "", ""
-        if drive and _G.stopMusic == true and _G.musicPlaying == false then
+        if drive and disk.isPresent(diskSide) and _G.musicPlaying == false then
             local songName = drive.getDiskLabel()
             folder = "/disk/"
             command, fileName = "play", songName
@@ -91,9 +92,9 @@ local function handleUserInput()
         end
         if command == "stop" then
             _G.stopMusic = true
-            local diskSide = findDiskDriveSide()
             if disk.isPresent(diskSide) then
                 disk.eject(diskSide)
+            end
         elseif command == "exit" then
             _G.stopMusic = true
             break
