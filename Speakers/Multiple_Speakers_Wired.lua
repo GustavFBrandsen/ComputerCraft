@@ -80,13 +80,17 @@ local function handleUserInput()
         local drive = peripheral.find("drive")
         local diskSide = findDiskDriveSide()
         local folder = ""
-        local _G.command, fileName = "", ""
+        local fileName = ""
         if disk.isPresent(diskSide) and _G.musicPlaying == false and _G.command ~= "exit" and _G.command ~= "stop" then
             local songName = drive.getDiskLabel()
             folder = "/disk/"
             _G.command, fileName = "play", songName
-        else
+        elseif _G.musicPlaying == false then
             print("Enter command (play <file> / stop / exit):")
+            local input = read()
+            folder = "/music/"
+            _G.command, fileName = input:match("^(%S+)%s*(%S*)$")
+        else
             local input = read()
             folder = "/music/"
             _G.command, fileName = input:match("^(%S+)%s*(%S*)$")
