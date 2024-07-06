@@ -78,11 +78,11 @@ local function handleUserInput()
             local input = read()
             folder = "/music/"
             command, fileName = input:match("^(%S+)%s*(%S*)$")
-        
+        end
         if command == "stop" then
             _G.stopMusic = true
             drive.ejectDrive()
-        elseif command = "exit" then
+        elseif command == "exit" then
             _G.stopMusic = true
             break
         elseif command == "play" and fileName ~= "" then
