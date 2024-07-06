@@ -75,15 +75,27 @@ local function findDiskDriveSide()
     return nil
 end
 
+-- Function to check if a disk is inserted on a specified side
+local function checkDiskPresence(side)
+    while true do
+        if findDiskDriveSide() then
+            _G.diskPresent = disk.isPresent(side)
+            sleep(3)  -- Check every 3 seconds
+        else
+            break
+        end
+    end
+end
+
 -- Function to handle user input
 local function handleUserInput()
     while true do
         local diskSide = findDiskDriveSide()
-        local diskPresent = diskSide and peripheral.isPresent(diskSide)
+        local drive = peripheral.wrap(diskSide)
+        local diskPresent = (drive and disk.isPresent(diskSide))
 
         local command, fileName = "", ""
         if diskPresent and _G.musicPlaying == false then
-            local drive = peripheral.wrap(diskSide)
             local songName = drive.getDiskLabel()
             local folder = "/disk/"
             local filePath = folder .. songName .. ".dfpwm"
@@ -118,5 +130,13 @@ local function handleUserInput()
     end
 end
 
--- Start user input handling in a coroutine
-parallel.waitForAny(handleUserInput)
+-- Start disk presence checking in parallel
+local diskSide = findDiskDriveSide()
+if diskSide then
+    parallel.waitForAny(
+        function() checkDiskPresence(diskSide) end,
+        handleUserInput
+    )
+else
+    print("No disk drive found.")
+end
