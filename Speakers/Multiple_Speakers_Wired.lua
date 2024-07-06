@@ -1,6 +1,10 @@
 -- Load the DFPWM decoder library
 local dfpwm = require("cc.audio.dfpwm")
 
+-- Global flags to control music playback
+_G.stopMusic = false
+_G.musicPlaying = false
+
 -- Function to play a DFPWM file on all connected speakers
 local function playDFPWMMusic(filePath)
     -- Find all connected speakers
@@ -47,12 +51,16 @@ local function playDFPWMMusic(filePath)
 
         -- Check if we need to stop
         if _G.stopMusic then
+            for i = 1, speakers.n do
+                speakers[i].stop()
+            end
             break
         end
     end
 
     -- Close the file
     file.close()
+    _G.musicPlaying = false
 end
 
 -- Function to handle user input
@@ -72,17 +80,15 @@ local function handleUserInput()
             _G.stopMusic = false
             _G.musicPlaying = true
             local filePath = "/music/" .. fileName .. ".dfpwm"
-            playDFPWMMusic(filePath)
-            _G.musicPlaying = false
+            parallel.waitForAny(
+                function() playDFPWMMusic(filePath) end,
+                handleUserInput
+            )
         else
             print("Invalid command. Use 'play <file>' or 'stop'.")
         end
     end
 end
-
--- Global flags to control music playback
-_G.stopMusic = false
-_G.musicPlaying = false
 
 -- Start user input handling in a coroutine
 parallel.waitForAny(handleUserInput)
