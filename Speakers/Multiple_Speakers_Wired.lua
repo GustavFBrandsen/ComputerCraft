@@ -6,6 +6,7 @@ local speakers = table.pack(peripheral.find("speaker"))
 -- Global flags to control music playback
 _G.stopMusic = false
 _G.musicPlaying = false
+_G.command = ""
 
 -- Function to play a DFPWM file on all connected speakers
 local function playDFPWMMusic(filePath)
@@ -79,18 +80,18 @@ local function handleUserInput()
         local drive = peripheral.find("drive")
         local diskSide = findDiskDriveSide()
         local folder = ""
-        local command, fileName = "", ""
-        if disk.isPresent(diskSide) and _G.musicPlaying == false then
+        local _G.command, fileName = "", ""
+        if disk.isPresent(diskSide) and _G.musicPlaying == false and _G.command ~= "exit" and _G.command ~= "stop" then
             local songName = drive.getDiskLabel()
             folder = "/disk/"
-            command, fileName = "play", songName
+            _G.command, fileName = "play", songName
         else
             print("Enter command (play <file> / stop / exit):")
             local input = read()
             folder = "/music/"
-            command, fileName = input:match("^(%S+)%s*(%S*)$")
+            _G.command, fileName = input:match("^(%S+)%s*(%S*)$")
         end
-        if command == "stop" then
+        if _G.command == "stop" then
             _G.stopMusic = true
             if disk.isPresent(diskSide) then
                 while _G.musicPlaying do
@@ -98,10 +99,10 @@ local function handleUserInput()
                 end
                 disk.eject(diskSide)
             end
-        elseif command == "exit" then
+        elseif _G.command == "exit" then
             _G.stopMusic = true
             break
-        elseif command == "play" and fileName ~= "" then
+        elseif _G.command == "play" and fileName ~= "" then
             _G.stopMusic = true
             while _G.musicPlaying do
                 sleep(0.1)
